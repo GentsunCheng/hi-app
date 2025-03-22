@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
+const net = require('net');
 const crypto = require('crypto');
 const { spawn } = require('child_process');
 
@@ -12,7 +13,31 @@ function getSecureRandomInt(min, max) {
     return min + (randomBytes % range);
 }
 
-let PORT = getSecureRandomInt(50000, 60000);
+function checkPort(port, host = '127.0.0.1') {
+  return new Promise((resolve, reject) => {
+      const server = net.createServer();
+
+      server.once('error', (err) => {
+          if (err.code === 'EADDRINUSE') {
+              resolve(false); // 端口被占用
+          } else {
+              reject(err);
+          }
+      });
+
+      server.once('listening', () => {
+          server.close();
+          resolve(true); // 端口可用
+      });
+
+      server.listen(port, host);
+  });
+}
+
+let PORT = null;
+do {
+  PORT = getSecureRandomInt(50000, 60000);
+} while (!checkPort(PORT));
 
 function startExpress() {
   expressServer = spawn('bun', [path.join(__dirname, 'src', 'index.js'), `--port=${PORT}`], {
