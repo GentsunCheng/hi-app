@@ -4,7 +4,9 @@
   "description": "Home Intelligent app",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "trace": "electron --trace-warnings .",
+    "init_server": "cd src && uv init && uv pip install -r requirements.txt"
   },
   "repository": "https://github.com/GentsunCheng/hi-app.git",
   "author": "OkaChn <JunxiongChengCN@outlook.com>",

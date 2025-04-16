@@ -39,8 +39,8 @@ do {
   PORT = getSecureRandomInt(50000, 60000);
 } while (!checkPort(PORT));
 
-function startExpress() {
-  expressServer = spawn('bun', [path.join(__dirname, 'src', 'index.js'), `--port=${PORT}`], {
+function startServer() {
+  expressServer = spawn('uv', ['run', path.join(__dirname, 'src', 'server.py'), `--port=${PORT}`], {
     cwd: path.join(__dirname, 'src'),
     stdio: ['inherit', 'pipe', 'pipe']
   });
@@ -64,11 +64,19 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadURL(`http://localhost:${PORT}`); // 确保 Express 正在监听 3000 端口
+  mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
   Menu.setApplicationMenu(null); // 移除菜单栏
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Page loaded');
+  });
+
+  // 监听加载失败事件
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load page:', errorCode, errorDescription);
   });
 }
 
@@ -80,7 +88,7 @@ app.on('before-quit', () => {
 });
 
 app.whenReady().then(() => {
-  startExpress(); // 启动 Express
+  startServer();
   createWindow();
 
   app.on('activate', () => {
