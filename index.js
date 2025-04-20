@@ -59,6 +59,7 @@ function createWindow() {
     width: 500,
     height: 900,
     resizable: true,  // 允许调整窗口大小
+    icon: __dirname + '/src/public/assets/logo.png',
     webPreferences: {
       nodeIntegration: true
     }
